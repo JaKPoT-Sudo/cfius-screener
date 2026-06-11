@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="breadcrumb"><a href="/">← Dashboard</a></p>
+
+<h1>{{ s.acquirer_name }} → {{ s.us_business_name }}</h1>
+<p class="muted">{{ s.acquirer_country }} acquirer ·
+  {{ "%g" | format(s.voting_interest_pct) }}% voting interest
+  {% if s.is_demo %}<span class="tag tag-demo">demo scenario</span>{% endif %}
+</p>
+
+<div class="verdict verdict-{{ s.outcome | lower }}">
+  <h2>{{ outcome_labels[s.outcome] }}</h2>
+  {% if s.outcome == "MANDATORY_DECLARATION" %}
+  <p>A CFIUS declaration is <strong>required by law</strong> before closing
+    ({% for r in mandatory_reasons %}{{ "substantial-interest test" if r == "substantial_interest" else "critical-technology test" }}{% if not loop.last %} and {% endif %}{% endfor %}).
+    Failure to file carries civil penalties up to the value of the transaction.
+    Declaration assessment period: {{ declaration_days }} days.</p>
+  {% elif s.outcome == "COVERED_VOLUNTARY" %}
+  <p>CFIUS has jurisdiction
+    ({{ "control transaction" if s.covered_basis == "control" else "covered investment" }}),
+    but no filing is mandatory. A voluntary filing earns safe harbor —
+    without one, CFIUS can review (and unwind) the deal indefinitely.
+    Notice review: {{ review_days }} days, plus up to
+    {{ investigation_days }} days of investigation if opened.</p>
+  {% else %}
+  <p>This transaction is not covered — CFIUS has no jurisdiction as described.
+    No filing is available or required.</p>
+  {% endif %}
+</div>
+
+{% if tid_categories %}
+<p><strong>TID US business:</strong>
+  {% for c in tid_categories %}<span class="tag">{{ c }}</span>{% endfor %}
+</p>
+{% endif %}
+{% if s.excepted_investor %}
+<p><strong>Excepted investor</strong> (simplified country-of-origin test — full
+  § 800.219 criteria require counsel).</p>
+{% endif %}
+
+<h2>How this determination was reached</h2>
+<p class="muted">Every step below is deterministic — same facts, same answer,
+  same citation. No AI is involved in the legal tests.</p>
+
+<ol class="findings">
+  {% for f in findings %}
+  <li class="finding">
+    <p class="finding-question">{{ f.question }}</p>
+    <p class="finding-answer">{{ f.answer }}</p>
+    <p class="finding-determination">{{ f.determination }}</p>
+    <p class="finding-citation">{{ f.citation }}</p>
+  </li>
+  {% endfor %}
+</ol>
+
+{% if s.us_business_description %}
+<h2>Business description on record</h2>
+<p>{{ s.us_business_description }}</p>
+{% endif %}
+{% endblock %}

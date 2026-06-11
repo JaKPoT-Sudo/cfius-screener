@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: cfius-screener
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      # Reminder: render.yaml envVars only apply via Blueprints. For
+      # auto-deploys from GitHub, set these in the Render dashboard or via
+      # the Render API too.
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DEMO_MODE
+        value: "True"
+      - key: ANTHROPIC_API_KEY
+        sync: false
