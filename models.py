@@ -54,3 +54,9 @@ class Screening(Base):
     findings_json: Mapped[str] = mapped_column(Text, default="[]")
 
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    # --- Milestone 2 additions (nullable — only set on AI-intake path) -------
+    # The original plain-English description the user pasted (intake path only).
+    intake_description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # The Claude-drafted narrative memo (set after user clicks "Generate Memo").
+    memo_text: Mapped[str | None] = mapped_column(Text, nullable=True)

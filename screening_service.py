@@ -18,7 +18,13 @@ from jurisdiction_engine import Determination, TransactionFacts, determine_juris
 from models import Screening
 
 
-def run_and_store(db: Session, facts: TransactionFacts, *, is_demo: bool = False) -> Screening:
+def run_and_store(
+    db: Session,
+    facts: TransactionFacts,
+    *,
+    is_demo: bool = False,
+    intake_description: str = "",
+) -> Screening:
     determination = determine_jurisdiction(facts)
     row = Screening(
         **facts.model_dump(exclude={"is_us_business"}),
@@ -30,6 +36,7 @@ def run_and_store(db: Session, facts: TransactionFacts, *, is_demo: bool = False
         mandatory_reasons_json=json.dumps(determination.mandatory_reasons),
         findings_json=json.dumps([asdict(f) for f in determination.findings]),
         is_demo=is_demo,
+        intake_description=intake_description.strip() or None,
     )
     db.add(row)
     db.commit()

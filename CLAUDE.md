@@ -14,9 +14,10 @@ with a full cited findings trail for every determination.
 ## Milestone status
 
 - **Milestone 1 ✅** — deterministic Part 800 decision tree, structured-fact
-  form, findings trail with citations, 3 seeded demo scenarios, test suite
-- **Milestone 2 ⬜** — Claude intake (parse → human confirm), TID classifier
-  assist, memo narrative, ReportLab PDF
+  form, findings trail with citations, 3 seeded demo scenarios, 44 tests
+- **Milestone 2 ✅** — Claude Haiku intake (plain-English → parse → human
+  confirm screen → engine runs); Claude-drafted screening memorandum; ReportLab
+  PDF export with DEMO watermark. 61 tests total.
 - **Milestone 3 ⬜** — OFAC SDN screen (port GhostTrace `ofac_checker.py`),
   threat/vulnerability/consequence risk scoring
 
@@ -61,12 +62,15 @@ stored row — the web form and the seeder both use it.
 | File | Purpose |
 |---|---|
 | `main.py` | FastAPI app + routes |
-| `config.py` | All regulatory parameters, citations, thresholds — no logic |
+| `config.py` | All regulatory parameters, citations, thresholds, `CLAUDE_MODEL` — no logic |
 | `jurisdiction_engine.py` | The deterministic Part 800 decision tree |
 | `screening_service.py` | Engine ↔ DB glue, JSON (de)serialization helpers |
-| `models.py` | SQLAlchemy ORM: Screening |
+| `models.py` | SQLAlchemy ORM: Screening (incl. `intake_description`, `memo_text`) |
 | `database.py` | Engine, Base, get_db, init_db |
 | `seed_data.py` | 3 fictional demo scenarios (idempotent) |
+| `claude_intake.py` | Claude Haiku: plain-English → proposed TransactionFacts dict |
+| `claude_memo.py` | Claude Haiku: draft screening memo narrative from Determination |
+| `pdf_export.py` | ReportLab PDF: memo + findings trail + DEMO watermark |
 
 ## Test suite
 

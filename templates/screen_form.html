@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>New transaction screening</h1>
+<h1>New screening — structured form</h1>
 <p class="muted">
-  Milestone 1 takes structured facts directly. (Milestone 2 will let you paste
-  a plain-English deal description and have Claude propose these answers for
-  your confirmation — the legal tests themselves always run on confirmed
-  structured facts, never on raw text.)
+  Enter the facts directly below. If you have a deal description in plain
+  English, use <a href="/intake">AI Intake</a> to have Claude propose
+  the answers for your review before the screening runs.
+  Either way, the legal tests always run on confirmed structured facts.
 </p>
 
 <form method="post" action="/screen" class="screen-form">

@@ -57,4 +57,32 @@
 <h2>Business description on record</h2>
 <p>{{ s.us_business_description }}</p>
 {% endif %}
+
+{% if s.intake_description %}
+<h2>Original deal description (AI intake)</h2>
+<p class="muted" style="white-space:pre-wrap">{{ s.intake_description }}</p>
+{% endif %}
+
+<h2>Screening memorandum</h2>
+{% if memo_error %}
+<div class="notice-error">Could not generate memo — Claude API unavailable or not configured.</div>
+{% endif %}
+
+{% if s.memo_text %}
+<div class="memo-section">{{ s.memo_text }}</div>
+<div class="memo-actions">
+  <a href="/screening/{{ s.id }}/memo.pdf" class="button-primary">Download PDF</a>
+  <form method="post" action="/screening/{{ s.id }}/memo" style="display:inline">
+    <button type="submit" class="button-secondary">Regenerate memo</button>
+  </form>
+</div>
+{% else %}
+<p class="muted">
+  The screening memorandum is a Claude-drafted narrative explaining which tests
+  fired and why. It does not affect the legal determination above.
+</p>
+<form method="post" action="/screening/{{ s.id }}/memo">
+  <button type="submit" class="button-primary">Generate memo</button>
+</form>
+{% endif %}
 {% endblock %}

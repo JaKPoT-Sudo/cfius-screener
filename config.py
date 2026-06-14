@@ -32,7 +32,8 @@ DEMO_BANNER = (
     "DEMO MODE — All transactions, companies, and investors are fictional. "
     "Screening output is a portfolio demonstration, not legal advice."
 )
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")  # used from Milestone 2
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
+CLAUDE_MODEL = "claude-haiku-4-5-20251001"
 
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./cfius_screener.db")
 
