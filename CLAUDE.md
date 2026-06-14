@@ -18,8 +18,10 @@ with a full cited findings trail for every determination.
 - **Milestone 2 ✅** — Claude Haiku intake (plain-English → parse → human
   confirm screen → engine runs); Claude-drafted screening memorandum; ReportLab
   PDF export with DEMO watermark. 61 tests total.
-- **Milestone 3 ⬜** — OFAC SDN screen (port GhostTrace `ofac_checker.py`),
-  threat/vulnerability/consequence risk scoring
+- **Milestone 3 ✅** — `risk_engine.py` (deterministic TVC scoring, runs at
+  `run_and_store` time, stored in `risk_score_json`); `ofac_checker.py` (port
+  from GhostTrace, rapidfuzz token_sort_ratio ≥90, on-demand OFAC button,
+  stores `ofac_hits_json` + `ofac_checked_at`). 85 tests total.
 
 ## Architecture decisions
 
@@ -71,6 +73,8 @@ stored row — the web form and the seeder both use it.
 | `claude_intake.py` | Claude Haiku: plain-English → proposed TransactionFacts dict |
 | `claude_memo.py` | Claude Haiku: draft screening memo narrative from Determination |
 | `pdf_export.py` | ReportLab PDF: memo + findings trail + DEMO watermark |
+| `risk_engine.py` | Deterministic TVC (Threat/Vulnerability/Consequence) risk scoring |
+| `ofac_checker.py` | OFAC SDN download + rapidfuzz screening (ported from GhostTrace) |
 
 ## Test suite
 
