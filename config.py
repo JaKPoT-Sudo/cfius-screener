@@ -166,3 +166,80 @@ VERIFICATION_DISCLAIMER = (
     "31 CFR Part 800 and NOT verified by counsel. Screening aid only — not "
     "legal advice. Real CFIUS determinations require a qualified attorney."
 )
+
+# ---------------------------------------------------------------------------
+# OFAC SDN screening — Milestone 3
+#
+# Source URLs from OFAC's public download page. Verified live June 2026.
+# token_sort_ratio ≥ OFAC_MATCH_THRESHOLD is flagged as a candidate hit;
+# ALL hits require human verification — fuzzy name matching cannot confirm
+# legal identity.
+# ---------------------------------------------------------------------------
+
+OFAC_SDN_CSV_URL = "https://www.treasury.gov/ofac/downloads/sdn.csv"
+OFAC_SDN_ALT_URL = "https://www.treasury.gov/ofac/downloads/alt.csv"
+OFAC_MATCH_THRESHOLD = 90  # rapidfuzz token_sort_ratio — VERIFY: GhostTrace uses 90
+
+# ---------------------------------------------------------------------------
+# National security risk scoring — Milestone 3
+#
+# WHY: the jurisdictional determination (covered / mandatory) answers a legal
+# question. The TVC risk score answers a separate analytic question: "how
+# serious is this deal from a national security perspective?" The two scores
+# can diverge — a NOT_COVERED deal can still carry high risk, and a MANDATORY
+# deal involving an excepted ally carries less risk than the mandatory label
+# alone suggests.
+#
+# Three dimensions — Threat / Vulnerability / Consequence:
+#   THREAT      — How adversarial is the acquirer and its principals?
+#   VULNERABILITY — How much sensitive access does this deal confer?
+#   CONSEQUENCE — How bad would exploitation be at a national level?
+#
+# Weights are judgment calls informed by public CFIUS guidance and NSS
+# priorities. ALL marked VERIFY — not validated by security professionals.
+# ---------------------------------------------------------------------------
+
+# Countries treated as high-threat in the US national security framework
+# (VERIFY: aligned with EO 13873, EO 13884, EO 14038 country designations
+# and CFIUS Committee practice). Common alias forms included for matching.
+RISK_HIGH_RISK_COUNTRIES = (
+    "China", "Prc",
+    "Russia",
+    "Iran",
+    "North Korea", "Dprk",
+    "Belarus",
+    "Venezuela",
+    "Cuba",
+    "Syria",
+)
+
+# SOE / SWF threshold — foreign govt ownership % at which we flag the
+# acquirer as effectively state-controlled. Using 49% to match the
+# SUBSTANTIAL_INTEREST_GOVT_PCT threshold (already in regulations).
+RISK_SOE_THRESHOLD = 49.0
+
+# --- Threat weights ---
+RISK_WEIGHT_HIGH_RISK_COUNTRY = 30   # acquirer is from a designated adversary state
+RISK_WEIGHT_SOE_ACQUIRER = 20        # acquirer is ≥49% govt-owned (SOE / SWF)
+
+# --- Vulnerability weights ---
+RISK_WEIGHT_CRITICAL_TECH = 20       # target produces export-controlled technology
+RISK_WEIGHT_EXPORT_AUTH = 15         # export to acquirer's country needs US authorization
+RISK_WEIGHT_CRITICAL_INFRA = 20      # target owns or operates critical infrastructure
+RISK_WEIGHT_SENSITIVE_DATA = 15      # target holds SPD on >1M individuals
+RISK_WEIGHT_CONTROL_ACQUIRED = 10    # transaction confers control of the US business
+RISK_WEIGHT_BOARD_ACCESS = 8         # acquirer gets board seat or observer seat
+RISK_WEIGHT_TECH_INFO_ACCESS = 8     # acquirer gets non-public technical info access
+RISK_WEIGHT_DECISION_ROLE = 6        # acquirer gets substantive decision-making role
+
+# --- Consequence weights ---
+RISK_WEIGHT_TID_CLASSIFICATION = 15  # TID status = CFIUS-recognized sensitive business
+RISK_WEIGHT_MANDATORY_FILING = 10    # mandatory declaration = legally flagged severity
+RISK_WEIGHT_TECH_TRANSFER = 15       # critical tech + export auth = direct transfer risk
+RISK_WEIGHT_INFRA_DISRUPTION = 15    # critical infra acquisition = disruption potential
+RISK_WEIGHT_DATA_EXPLOITATION = 10   # mass SPD = adversarial exploitation risk
+
+# Score tier thresholds (total out of 100) — VERIFY
+RISK_TIER_CRITICAL = 75
+RISK_TIER_HIGH = 50
+RISK_TIER_MEDIUM = 25

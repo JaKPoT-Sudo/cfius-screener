@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from jurisdiction_engine import Determination, TransactionFacts, determine_jurisdiction
 from models import Screening
+from risk_engine import score_transaction
 
 
 def run_and_store(
@@ -26,6 +27,7 @@ def run_and_store(
     intake_description: str = "",
 ) -> Screening:
     determination = determine_jurisdiction(facts)
+    risk = score_transaction(facts, determination)
     row = Screening(
         **facts.model_dump(exclude={"is_us_business"}),
         outcome=determination.outcome.value,
@@ -37,6 +39,7 @@ def run_and_store(
         findings_json=json.dumps([asdict(f) for f in determination.findings]),
         is_demo=is_demo,
         intake_description=intake_description.strip() or None,
+        risk_score_json=json.dumps(risk),
     )
     db.add(row)
     db.commit()
@@ -54,3 +57,15 @@ def tid_categories_of(row: Screening) -> list[str]:
 
 def mandatory_reasons_of(row: Screening) -> list[str]:
     return json.loads(row.mandatory_reasons_json)
+
+
+def risk_score_of(row: Screening) -> dict | None:
+    if row.risk_score_json is None:
+        return None
+    return json.loads(row.risk_score_json)
+
+
+def ofac_hits_of(row: Screening) -> list[dict]:
+    if row.ofac_hits_json is None:
+        return []
+    return json.loads(row.ofac_hits_json)

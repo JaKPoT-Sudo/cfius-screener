@@ -205,6 +205,68 @@ a { color: var(--navy-light); }
 }
 .field-help summary { cursor: pointer; }
 
+/* Risk scorecard */
+.risk-scorecard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.3rem;
+  margin: 0.8rem 0 1.2rem;
+}
+.risk-total {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.risk-number {
+  font-size: 2.5rem;
+  font-weight: bold;
+  font-family: system-ui, sans-serif;
+  line-height: 1;
+}
+.risk-denom { font-size: 1.1rem; color: var(--slate); font-family: system-ui, sans-serif; }
+.risk-tier {
+  font-family: system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 0.15rem 0.8rem;
+  letter-spacing: 0.5px;
+}
+.risk-total.risk-critical .risk-number { color: var(--red); }
+.risk-total.risk-critical .risk-tier { background: var(--red-bg); color: var(--red); }
+.risk-total.risk-high .risk-number { color: #b45309; }
+.risk-total.risk-high .risk-tier { background: var(--amber-bg); color: #b45309; }
+.risk-total.risk-medium .risk-number { color: #1d4ed8; }
+.risk-total.risk-medium .risk-tier { background: #dbeafe; color: #1d4ed8; }
+.risk-total.risk-low .risk-number { color: var(--green); }
+.risk-total.risk-low .risk-tier { background: var(--green-bg); color: var(--green); }
+.risk-dims {
+  display: flex;
+  gap: 1.5rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.88rem;
+  color: var(--slate);
+  margin-bottom: 0.4rem;
+}
+.risk-dims strong { color: #1e293b; }
+.tag-threat { background: #fee2e2; color: #b91c1c; }
+.tag-vulnerability { background: var(--amber-bg); color: var(--amber); }
+.tag-consequence { background: #ede9fe; color: #5b21b6; }
+
+/* OFAC no-hits notice */
+.notice-ok {
+  background: var(--green-bg);
+  border: 1px solid #b5e2c4;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  margin-bottom: 0.8rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.92rem;
+  color: var(--green);
+}
+
 /* Button secondary */
 .button-secondary {
   display: inline-block;

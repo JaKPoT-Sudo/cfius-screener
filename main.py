@@ -21,6 +21,7 @@ from sqlalchemy.orm import Session
 
 from claude_intake import IntakeError, parse_deal_description
 from claude_memo import MemoError, draft_memo
+from ofac_checker import OFACHit, screen_entities
 from config import (
     APP_TITLE,
     CRITICAL_INFRASTRUCTURE_EXAMPLES,
@@ -39,6 +40,8 @@ from pdf_export import render_memo_pdf
 from screening_service import (
     findings_of,
     mandatory_reasons_of,
+    ofac_hits_of,
+    risk_score_of,
     run_and_store,
     tid_categories_of,
 )
@@ -165,6 +168,7 @@ def screening_detail(
     screening_id: int,
     db: Session = Depends(get_db),
     memo_error: str = Query(default=""),
+    ofac_error: str = Query(default=""),
 ):
     row = db.get(Screening, screening_id)
     if row is None:
@@ -174,10 +178,13 @@ def screening_detail(
         "findings": findings_of(row),
         "tid_categories": tid_categories_of(row),
         "mandatory_reasons": mandatory_reasons_of(row),
+        "risk_score": risk_score_of(row),
+        "ofac_hits": ofac_hits_of(row),
         "declaration_days": DECLARATION_ASSESSMENT_DAYS,
         "review_days": NOTICE_REVIEW_DAYS,
         "investigation_days": NOTICE_INVESTIGATION_DAYS,
         "memo_error": memo_error,
+        "ofac_error": ofac_error,
     })
 
 
@@ -295,6 +302,30 @@ def memo_pdf(screening_id: int, db: Session = Depends(get_db)):
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+# ---------------------------------------------------------------------------
+# OFAC SDN screening — on-demand, acquirer name only
+# ---------------------------------------------------------------------------
+
+@app.post("/screening/{screening_id}/ofac-screen")
+def ofac_screen(screening_id: int, db: Session = Depends(get_db)):
+    from datetime import datetime, timezone
+    import json
+
+    row = db.get(Screening, screening_id)
+    if row is None:
+        raise HTTPException(status_code=404, detail="Screening not found.")
+    try:
+        hits = screen_entities([row.acquirer_name])
+        row.ofac_hits_json = json.dumps([h._asdict() for h in hits])
+        row.ofac_checked_at = datetime.now(timezone.utc)
+        db.commit()
+    except Exception:
+        return RedirectResponse(
+            f"/screening/{screening_id}?ofac_error=1", status_code=303
+        )
+    return RedirectResponse(f"/screening/{screening_id}", status_code=303)
 
 
 # ---------------------------------------------------------------------------

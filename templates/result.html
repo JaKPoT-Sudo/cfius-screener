@@ -38,6 +38,83 @@
   § 800.219 criteria require counsel).</p>
 {% endif %}
 
+{% if risk_score %}
+<h2>National security risk assessment</h2>
+<p class="muted">Deterministic scoring — same facts, same score, no AI involved.
+  Threat / Vulnerability / Consequence weights are in
+  <code>config.py</code> (all marked VERIFY).</p>
+<div class="risk-scorecard">
+  <div class="risk-total risk-{{ risk_score.tier | lower }}">
+    <span class="risk-number">{{ risk_score.total }}</span><span class="risk-denom">/100</span>
+    <span class="risk-tier">{{ risk_score.tier }}</span>
+  </div>
+  <div class="risk-dims">
+    <span><strong>Threat</strong> {{ risk_score.threat }}</span>
+    <span><strong>Vulnerability</strong> {{ risk_score.vulnerability }}</span>
+    <span><strong>Consequence</strong> {{ risk_score.consequence }}</span>
+  </div>
+  {% if risk_score.factors %}
+  <table class="data-table" style="margin-top:0.6rem">
+    <thead><tr><th>Dimension</th><th>Factor</th><th style="text-align:right">Points</th></tr></thead>
+    <tbody>
+      {% for f in risk_score.factors %}
+      <tr>
+        <td><span class="tag tag-{{ f.dimension }}">{{ f.dimension | capitalize }}</span></td>
+        <td>{{ f.name }}</td>
+        <td style="text-align:right;font-family:system-ui,sans-serif">+{{ f.points }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p class="muted">No risk factors identified for this transaction.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<h2>OFAC SDN screening</h2>
+{% if ofac_error %}
+<div class="notice-error">OFAC screening failed — SDN list may be temporarily unavailable. Try again later.</div>
+{% endif %}
+{% if s.ofac_checked_at %}
+  {% if ofac_hits %}
+  <div class="notice-error">
+    <strong>{{ ofac_hits|length }} candidate match(es) found</strong> for
+    <em>{{ s.acquirer_name }}</em>. Human verification required before any
+    compliance action — name matching cannot confirm legal identity.
+  </div>
+  <table class="data-table">
+    <thead><tr><th>Submitted name</th><th>SDN name</th><th>Score</th><th>Program</th><th>Type</th></tr></thead>
+    <tbody>
+      {% for h in ofac_hits %}
+      <tr>
+        <td>{{ h.entity_name }}</td>
+        <td>{{ h.sdn_name }}</td>
+        <td>{{ h.score }}</td>
+        <td>{{ h.sdn_program or "—" }}</td>
+        <td>{{ h.sdn_type }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="notice-ok">
+    No candidate SDN matches found for <em>{{ s.acquirer_name }}</em>.
+  </div>
+  {% endif %}
+  <p class="muted">Screened {{ s.ofac_checked_at.strftime("%Y-%m-%d %H:%M UTC") }}.
+    <form method="post" action="/screening/{{ s.id }}/ofac-screen" style="display:inline">
+      <button type="submit" class="button-secondary" style="font-size:0.85rem;padding:0.25rem 0.8rem">Re-screen</button>
+    </form>
+  </p>
+{% else %}
+<p class="muted">OFAC SDN screening not yet run for this acquirer. The first
+  run downloads the OFAC list (~2 MB) — takes a few seconds.</p>
+<form method="post" action="/screening/{{ s.id }}/ofac-screen">
+  <button type="submit" class="button-primary">Screen against OFAC SDN list</button>
+</form>
+{% endif %}
+
 <h2>How this determination was reached</h2>
 <p class="muted">Every step below is deterministic — same facts, same answer,
   same citation. No AI is involved in the legal tests.</p>

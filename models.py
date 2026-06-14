@@ -56,7 +56,13 @@ class Screening(Base):
     is_demo: Mapped[bool] = mapped_column(Boolean, default=False)
 
     # --- Milestone 2 additions (nullable — only set on AI-intake path) -------
-    # The original plain-English description the user pasted (intake path only).
     intake_description: Mapped[str | None] = mapped_column(Text, nullable=True)
-    # The Claude-drafted narrative memo (set after user clicks "Generate Memo").
     memo_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # --- Milestone 3 additions ----------------------------------------------
+    # TVC risk score JSON: {"threat", "vulnerability", "consequence", "total",
+    # "tier", "factors"}. Computed deterministically at creation time.
+    risk_score_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # OFAC SDN screening results — set on-demand via POST /screening/{id}/ofac-screen
+    ofac_hits_json: Mapped[str | None] = mapped_column(Text, nullable=True)
+    ofac_checked_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
